@@ -4,15 +4,9 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await page.getByText("Veterinarians").click();
   await page.getByText("All").click();
-  await page.waitForSelector("tbody tr");
 });
 
 test("Validate selected specialties", async ({ page }) => {
-  const vetPage = page.getByRole("heading", { name: "Veterinarians" });
-  const vetName = "Helen Leary";
-  const editVetButton = page
-    .getByRole("row", { name: vetName })
-    .getByRole("button", { name: "Edit Vet" });
   const specialitiesDropdown = page.locator(".selected-specialties");
   const radiologyCheckbox = page.getByRole("checkbox", {
     name: "radiology",
@@ -22,8 +16,11 @@ test("Validate selected specialties", async ({ page }) => {
     name: "dentistry",
   });
 
-  await expect(vetPage).toHaveText("Veterinarians");
-  await editVetButton.click();
+  await expect(page.getByRole("heading")).toHaveText("Veterinarians");
+  await page
+    .getByRole("row", { name: "Helen Leary" })
+    .getByRole("button", { name: "Edit Vet" })
+    .click();
   await expect(specialitiesDropdown).toHaveText("radiology");
   await specialitiesDropdown.click();
   await expect(radiologyCheckbox).toBeChecked();
@@ -37,12 +34,11 @@ test("Validate selected specialties", async ({ page }) => {
 });
 
 test("Select all specialties", async ({ page }) => {
-  const vetName = "Rafael Ortega";
-  const editVetButton = page
-    .getByRole("row", { name: vetName })
-    .getByRole("button", { name: "Edit Vet" });
   const specialitiesDropdown = page.locator(".selected-specialties");
-  await editVetButton.click();
+  await page
+    .getByRole("row", { name: "Rafael Ortega" })
+    .getByRole("button", { name: "Edit Vet" })
+    .click();
   await expect(specialitiesDropdown).toHaveText("surgery");
   await specialitiesDropdown.click();
 
@@ -57,18 +53,13 @@ test("Select all specialties", async ({ page }) => {
 });
 
 test("Deselect all specialties", async ({ page }) => {
-  const vetName = "Linda Douglas";
-  const editVetButton = page
-    .getByRole("row", { name: vetName })
-    .getByRole("button", { name: "Edit Vet" });
   const specialitiesDropdown = page.locator(".selected-specialties");
 
-  await editVetButton.click();
-  // I wasn't sure about the order, since requirements state "surgery, dentistry"
-  // but the UI displays "dentistry, surgery". I used the actual UI order.
-  // As a workaround for order-independent validation, toContainText could be used:
-  // await expect(specialitiesDropdown).toContainText("surgery");
-  // await expect(specialitiesDropdown).toContainText("dentistry");
+  await page
+    .getByRole("row", { name: "Linda Douglas" })
+    .getByRole("button", { name: "Edit Vet" })
+    .click();
+  // UI displays "dentistry, surgery" (different order than requirements)
   await expect(specialitiesDropdown).toHaveText("dentistry, surgery");
   await specialitiesDropdown.click();
 
