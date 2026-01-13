@@ -20,13 +20,13 @@ test('Add and delete pet type', async ({page}) => {
     await petNameInputField.fill("pig");
     await page.getByRole("button", { name: "Save" }).click();
     // Here I set locator as .last to avoid mistakenly putting the assertion value into the locator itself
-    await expect(page.locator('table#pettypes input[name="pettype_name"]').last()).toHaveValue("pig");
+    await expect(page.locator('[name="pettype_name"]').last()).toHaveValue("pig");
     page.on('dialog', async dialog => {
         expect(dialog.message()).toBe('Delete the pet type?');
         await dialog.accept();
         });
 
-    await page.locator('table#pettypes tbody tr').last().getByRole('button', { name: 'Delete' }).click();
-    await expect(page.locator('table#pettypes input[name="pettype_name"]').last()).not.toHaveValue('pig');
+    await page.locator('tbody tr').last().getByRole('button', { name: 'Delete' }).click();
+    await expect(page.locator('[name="pettype_name"]').last()).not.toHaveValue('pig');
 });
 
