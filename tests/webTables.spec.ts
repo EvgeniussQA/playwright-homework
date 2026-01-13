@@ -1,5 +1,4 @@
 import { test, expect } from "@playwright/test";
-import { time } from "console";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -8,9 +7,9 @@ test.beforeEach(async ({ page }) => {
 test("Validate the pet name city of the owner", async ({ page }) => {
   await page.getByRole("button", { name: "Owners" }).click();
   await page.getByRole("link", { name: /search/i }).click();
-  const tartgetRowByOwner = page.getByRole("row", { name: "Jeff Black" });
-  await expect(tartgetRowByOwner.locator("td").nth(2)).toHaveText("Monona");
-  await expect(tartgetRowByOwner.locator("td").nth(4)).toHaveText("Lucky");
+  const targetRowByOwner = page.getByRole("row", { name: "Jeff Black" });
+  await expect(targetRowByOwner.locator("td").nth(2)).toHaveText("Monona");
+  await expect(targetRowByOwner.locator("td").nth(4)).toHaveText("Lucky");
 });
 
 test("Validate owners count of the Madison city", async ({ page }) => {
@@ -78,20 +77,71 @@ test("Validate phone number and pet name on the Owner Information page", async (
 test("Validate pets of the Madison city", async ({ page }) => {
   await page.getByRole("button", { name: "Owners" }).click();
   await page.getByRole("link", { name: /search/i }).click();
-  const actualMadisonCityPets = [];
-const madisonRows = page.getByRole("row").filter({ hasText: "Madison" });
- await expect(madisonRows).toHaveCount(4);
-//   const allRows = await madisonRows.all();
-//   console.log(`Found ${allRows.length} rows with Madison`);
+  const madisonRows = page.getByRole("row").filter({ hasText: "Madison" });
+  await expect(madisonRows).toHaveCount(4);
+  const actualPets = [];
+  for (let row of await madisonRows.all()) {
+    const petName = await row.locator("td").nth(4).textContent();
+    if (petName) {
+      actualPets.push(petName.trim());
+    }
+  }
+  const expectedMadisonPets = ["Leo", "George", "Mulligan", "Freddy"];
+  expect(actualPets).toEqual(expectedMadisonPets);
+});
 
+test("Validate specialty update", async ({ page }) => {
+  await page.getByRole("button", { name: "Veterinarians" }).click();
+  await page.getByRole("link", { name: "ALL" }).click();
+  // Not sure about that constant tbh... Decided to keep because it unloads assertion on line 98
+  const targetRowOrtega = page.getByRole("row", { name: "Rafael Ortega" });
+  await expect(targetRowOrtega.locator("td").nth(1)).toHaveText("surgery");
+  await page.getByRole("link", { name: "Specialties" }).click();
+  await expect(page.getByRole("heading")).toHaveText("Specialties");
+  await page
+    .getByRole("row", { name: "surgery" })
+    .getByRole("button", { name: "Edit" })
+    .click();
+  await expect(page.getByRole("heading")).toHaveText("Edit Specialty");
+  const textbox = page.getByRole("textbox");
+  // It wasn't working without clicking before filling textbox, can you comment on it pls
+  await textbox.click();
+  await textbox.fill("dermatology");
+  await page.getByRole("button", { name: "Update" }).click();
+  await expect(page.locator('[id="1"]')).toHaveValue("dermatology");
+  await page.getByRole("button", { name: "Veterinarians" }).click();
+  await page.getByRole("link", { name: "ALL" }).click();
+  await expect(targetRowOrtega.locator("td").nth(1)).toHaveText("dermatology");
+  await page.getByRole("link", { name: "Specialties" }).click();
+  await page
+    .getByRole("row", { name: "dermatology" })
+    .getByRole("button", { name: "Edit" })
+    .click();
+  await textbox.click();
+  await textbox.fill("surgery");
+  await page.getByRole("button", { name: "Update" }).click();
+  await expect(page.locator('[id="1"]')).toHaveValue("surgery");
+});
 
-//   for (let row of await madisonRows.all()) {
-//     const petName = await row.locator("td").nth(4).locator("tr").textContent();
-//     if (petName) {
-//     actualMadisonCityPets.push(petName.trim());
-//   }
-//   }
-
-//   const expectedMadisonPets = ["Leo", "George", "Mulligan", "Freddy"];
-//   expect(actualMadisonCityPets).toEqual(expectedMadisonPets);
+test("Validate specialty lists", async ({ page }) => {
+  await page.getByRole("link", { name: "Specialties" }).click();
+  await page.getByRole("button", { name: "Add" }).click();
+  await page.locator("#name").fill("oncology");
+  await page.getByRole("button", { name: "Save" }).click();
+  await page.waitForTimeout(500);
+  const specialities = [];
+  const specialityRows = page.locator("tbody tr");
+  for (const row of await specialityRows.all()) {
+    const speciality = await row.locator(".form-control").inputValue();
+    if (speciality) {
+      specialities.push(speciality.trim());
+    }
+  }
+  await page.getByRole("button", { name: "Veterinarians" }).click();
+  await page.getByRole("link", { name: "ALL" }).click();
+  const sharonVetRow = page.getByRole("row", { name: "Sharon Jenkins" });
+  await sharonVetRow.getByRole("button", { name: "Edit" }).click();
+  await expect(page.getByRole("heading")).toHaveText("Edit Veterinarian");
+  await page.getByLabel("Specialties").click();
+  
 });
