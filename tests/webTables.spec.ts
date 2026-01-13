@@ -129,19 +129,39 @@ test("Validate specialty lists", async ({ page }) => {
   await page.locator("#name").fill("oncology");
   await page.getByRole("button", { name: "Save" }).click();
   await page.waitForTimeout(500);
-  const specialities = [];
+  const specialitiesList = [];
   const specialityRows = page.locator("tbody tr");
+
   for (const row of await specialityRows.all()) {
     const speciality = await row.locator(".form-control").inputValue();
     if (speciality) {
-      specialities.push(speciality.trim());
+      specialitiesList.push(speciality.trim());
     }
   }
+
   await page.getByRole("button", { name: "Veterinarians" }).click();
   await page.getByRole("link", { name: "ALL" }).click();
   const sharonVetRow = page.getByRole("row", { name: "Sharon Jenkins" });
   await sharonVetRow.getByRole("button", { name: "Edit" }).click();
-  await expect(page.getByRole("heading")).toHaveText("Edit Veterinarian");
-  await page.getByLabel("Specialties").click();
-  
+  await page.locator(".dropdown-display").click();
+  const specialitiesFromDropdown = [];
+  const dropdownOptions = page.locator(".dropdown-content label");
+
+  for (const option of await dropdownOptions.all()) {
+    const speciality = await option.textContent();
+    if (speciality) {
+      specialitiesFromDropdown.push(speciality.trim());
+    }
+  }
+
+  expect(specialitiesFromDropdown).toEqual(specialitiesList);
+  await page.getByRole("checkbox", { name: "oncology" }).check();
+  await page.locator(".dropdown-display").click();
+  await page.getByRole("button", { name: "Save Vet" }).click();
+  await expect(sharonVetRow.locator("td").nth(1)).toHaveText("oncology");
+  await page.getByRole("link", { name: "Specialties" }).click();
+  await page.getByRole("row", { name: "oncology" }).getByRole("button", { name: "Delete" }).click();
+  await page.getByRole("button", { name: "Veterinarians" }).click();
+  await page.getByRole("link", { name: "ALL" }).click();
+  await expect(sharonVetRow.locator("td").nth(1)).toBeEmpty();
 });
