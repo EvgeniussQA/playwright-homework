@@ -59,26 +59,39 @@ test("Validate search by Last Name", async ({ page }) => {
   ).toBeVisible();
 });
 
-
-test("Validate phone number and pet name on the Owner Information page", async ({ page }) => {
+test("Validate phone number and pet name on the Owner Information page", async ({
+  page,
+}) => {
   await page.getByRole("button", { name: "Owners" }).click();
   await page.getByRole("link", { name: /search/i }).click();
-const targetRow = page.getByRole("row", {name: "6085552765"});
-const petName = await targetRow.locator("td").nth(4).textContent();
-await targetRow.locator("td").nth(0).getByRole("link").click();
-await expect(page.getByRole("table").first()).toContainText("6085552765");
-// Another option for a phone number locator: 
-// page.getByRole('row').filter({ hasText: 'Telephone' }).locator('td');
-await expect(page.locator('dl.dl-horizontal dd').first()).toHaveText(petName!);
+  const targetRow = page.getByRole("row", { name: "6085552765" });
+  const petName = await targetRow.locator("td").nth(4).textContent();
+  await targetRow.locator("td").nth(0).getByRole("link").click();
+  await expect(page.getByRole("table").first()).toContainText("6085552765");
+  // Another option for a phone number locator:
+  // page.getByRole('row').filter({ hasText: 'Telephone' }).locator('td');
+  await expect(page.locator("dl.dl-horizontal dd").first()).toHaveText(
+    petName!
+  );
 });
 
 test("Validate pets of the Madison city", async ({ page }) => {
   await page.getByRole("button", { name: "Owners" }).click();
   await page.getByRole("link", { name: /search/i }).click();
-  const madisonCityPets = [];
-  const madisonRows = page.getByRole("row").filter({ hasText: "Madison" });
-  for (let row of await madisonRows.all()) {
-    const petName = await row.locator("td").nth(4).textContent();
-    
-  }
+  const actualMadisonCityPets = [];
+const madisonRows = page.getByRole("row").filter({ hasText: "Madison" });
+ await expect(madisonRows).toHaveCount(4);
+//   const allRows = await madisonRows.all();
+//   console.log(`Found ${allRows.length} rows with Madison`);
+
+
+//   for (let row of await madisonRows.all()) {
+//     const petName = await row.locator("td").nth(4).locator("tr").textContent();
+//     if (petName) {
+//     actualMadisonCityPets.push(petName.trim());
+//   }
+//   }
+
+//   const expectedMadisonPets = ["Leo", "George", "Mulligan", "Freddy"];
+//   expect(actualMadisonCityPets).toEqual(expectedMadisonPets);
 });
