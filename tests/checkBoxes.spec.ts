@@ -26,10 +26,10 @@ test("Validate selected specialties", async ({ page }) => {
   await expect(radiologyCheckbox).toBeChecked();
   await expect(surgeryCheckbox).not.toBeChecked();
   await expect(dentistryCheckbox).not.toBeChecked();
-  await surgeryCheckbox.check({ force: true });
-  await radiologyCheckbox.uncheck({ force: true });
+  await surgeryCheckbox.check();
+  await radiologyCheckbox.uncheck();
   await expect(specialitiesDropdown).toHaveText("surgery");
-  await dentistryCheckbox.check({ force: true });
+  await dentistryCheckbox.check();
   await expect(specialitiesDropdown).toHaveText("surgery, dentistry");
 });
 
@@ -44,7 +44,7 @@ test("Select all specialties", async ({ page }) => {
 
   const allBoxes = page.getByRole("checkbox");
   for (const box of await allBoxes.all()) {
-    await box.check({ force: true });
+    await box.check();
     expect(await box.isChecked()).toBeTruthy();
   }
   await expect(specialitiesDropdown).toHaveText(
@@ -65,7 +65,7 @@ test("Deselect all specialties", async ({ page }) => {
 
   const allBoxes = page.getByRole("checkbox");
   for (const box of await allBoxes.all()) {
-    await box.uncheck({ force: true });
+    await box.uncheck();
     expect(await box.isChecked()).toBeFalsy();
   }
   await expect(specialitiesDropdown).toBeEmpty();
