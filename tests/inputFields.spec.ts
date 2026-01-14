@@ -33,10 +33,7 @@ test("Update pet type", async ({ page }) => {
 test("Cancel pet type update", async ({ page }) => {
   const nameInput = page.locator("#name");
 
-  await page
-    .getByRole("row", { name: "dog" })
-    .getByRole("button", { name: "Edit" })
-    .click();
+  await page.getByRole("row", { name: "dog" }).getByRole("button", { name: "Edit" }).click();
   await nameInput.click();
   await nameInput.clear();
   await nameInput.fill("moose");
@@ -47,21 +44,13 @@ test("Cancel pet type update", async ({ page }) => {
 
 test("Cancel pet type update for lizard", async ({ page }) => {
   const nameInput = page.locator("#name");
-  await page
-    .getByRole("row", { name: "lizard" })
-    .getByRole("button", { name: "Edit" })
-    .click();
+  await page.getByRole("row", { name: "lizard" }).getByRole("button", { name: "Edit" }).click();
   await nameInput.click();
   await nameInput.clear();
   await expect(
-    page.locator(".help-block", { hasText: "Name is required" })
-  ).toBeVisible();
+    page.locator(".help-block", { hasText: "Name is required" })).toBeVisible();
   await page.getByRole("button", { name: "Update" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Edit Pet Type" })
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Edit Pet Type" })).toBeVisible();
   await page.getByRole("button", { name: "Cancel" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Pet Types" })
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pet Types" })).toBeVisible();
 });
